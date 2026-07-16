@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use GlpiPlugin\Uimanager\Config;
 
-define('PLUGIN_UIMANAGER_VERSION', '1.0.0');
+define('PLUGIN_UIMANAGER_VERSION', '1.1.0');
 define('PLUGIN_UIMANAGER_MIN_GLPI', '11.0.0');
 define('PLUGIN_UIMANAGER_MAX_GLPI', '11.0.99');
 
@@ -50,6 +50,13 @@ function plugin_uimanager_check_config(bool $verbose = false): bool
 
 function plugin_uimanager_install(): bool
 {
+    return Config::install();
+}
+
+function plugin_uimanager_upgrade(string $oldVersion): bool
+{
+    // The key/value schema already supports arbitrary registry keys. Re-running
+    // install is an idempotent schema check and never writes visibility rows.
     return Config::install();
 }
 

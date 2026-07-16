@@ -20,11 +20,11 @@ final class InputValidator
             throw new InvalidArgumentException('The visible_items field must be an array.');
         }
 
+        $keys = array_keys($submittedKeys);
+        SupportedMenuRegistry::validateSubmittedKeys($keys);
+
         $visibility = array_fill_keys(SupportedMenuRegistry::keys(), false);
-        foreach (array_keys($submittedKeys) as $key) {
-            if (!is_string($key) || !SupportedMenuRegistry::isSupported($key)) {
-                throw new InvalidArgumentException('An unsupported asset menu key was submitted.');
-            }
+        foreach ($keys as $key) {
             $visibility[$key] = true;
         }
 

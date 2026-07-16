@@ -46,16 +46,30 @@ final class Config
                 return $visibility;
             }
 
-            foreach ($DB->request(['FROM' => self::TABLE]) as $row) {
-                $key = (string) ($row['item_key'] ?? '');
-                if (SupportedMenuRegistry::isSupported($key)) {
-                    $visibility[$key] = (bool) ($row['is_visible'] ?? true);
-                }
-            }
+            $visibility = self::mergeStoredVisibility($DB->request(['FROM' => self::TABLE]));
         } catch (Throwable $exception) {
             self::logDebug('Could not read configuration; defaults are being used: ' . $exception->getMessage());
         }
 
+        return $visibility;
+    }
+
+    /**
+     * Merge persisted overrides over all-visible defaults. This makes upgrades
+     * additive: 1.0.0 Asset keys survive and every new 1.1.0 key defaults true.
+     *
+     * @param iterable<array<string, mixed>> $rows
+     * @return array<string, bool>
+     */
+    public static function mergeStoredVisibility(iterable $rows): array
+    {
+        $visibility = SupportedMenuRegistry::defaults();
+        foreach ($rows as $row) {
+            $key = (string) ($row['item_key'] ?? '');
+            if (SupportedMenuRegistry::isSupported($key)) {
+                $visibility[$key] = (bool) ($row['is_visible'] ?? true);
+            }
+        }
         return $visibility;
     }
 

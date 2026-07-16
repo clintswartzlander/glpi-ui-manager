@@ -59,13 +59,43 @@ final class SecurityAndStructureTest extends TestCase
         ConfigurationController::visibilityForPreset('hide_everything');
     }
 
-    public function testResetDefaultsRemovesOverrides(): void
+    public function testResetSectionAffectsOnlyThatSection(): void
+    {
+        $visibility = array_fill_keys(SupportedMenuRegistry::keys(), false);
+        $result = ConfigurationController::visibilityForSectionAction(
+            $visibility,
+            'management',
+            'section_reset'
+        );
+        self::assertTrue($result['section_management']);
+        self::assertTrue($result['management_licenses']);
+        self::assertFalse($result['section_tools']);
+        self::assertFalse($result['tools_projects']);
+    }
+
+    public function testResetAllRemovesOverrides(): void
     {
         $source = file_get_contents(dirname(__DIR__) . '/src/ConfigurationController.php');
 
         self::assertIsString($source);
-        self::assertStringContainsString("case 'reset_defaults':", $source);
+        self::assertStringContainsString("case 'reset_all':", $source);
         self::assertStringContainsString('Config::reset();', $source);
+    }
+
+    public function testDiagnosticControllerRequiresConfigurationUpdateRight(): void
+    {
+        $source = file_get_contents(dirname(__DIR__) . '/front/menu-diagnostic.php');
+        self::assertIsString($source);
+        self::assertStringContainsString('ConfigurationController::authorize();', $source);
+    }
+
+    public function testNoManualDuplicateCsrfValidationExists(): void
+    {
+        foreach (['front/config.form.php', 'src/ConfigurationController.php'] as $file) {
+            $source = file_get_contents(dirname(__DIR__) . '/' . $file);
+            self::assertIsString($source);
+            self::assertStringNotContainsString('checkCSRF', $source);
+        }
     }
 
     public function testPluginDisableRestoresMenusByLeavingCoreUntouched(): void

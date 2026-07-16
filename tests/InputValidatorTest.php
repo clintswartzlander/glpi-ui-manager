@@ -37,4 +37,15 @@ final class InputValidatorTest extends TestCase
 
         InputValidator::visibilityFromSubmittedKeys('computer');
     }
+
+    public function testTopLevelAndChildSettingsPersistSeparately(): void
+    {
+        $result = InputValidator::visibilityFromSubmittedKeys([
+            'section_management' => '1',
+            'management_documents' => '1',
+        ]);
+        self::assertTrue($result['section_management']);
+        self::assertTrue($result['management_documents']);
+        self::assertFalse($result['management_licenses']);
+    }
 }

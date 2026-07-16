@@ -1,91 +1,70 @@
 # GLPI UI Manager
 
-GLPI UI Manager is a GLPI 11 plugin that gives global administrators a supported, plugin-owned foundation for simplifying and customizing the GLPI interface without modifying GLPI core. Version 1.0.0 controls whether selected native entries appear in the **Assets** navigation menu.
+GLPI UI Manager 1.1.0 gives administrators global visibility controls for supported native navigation entries in GLPI 11.0.x. It uses GLPI's `redefine_menus` hook and never changes core files, rights, or data.
 
-> [!IMPORTANT]
-> This plugin controls navigation visibility only. Hiding an entry does **not** revoke permission, delete data, or prevent access through a direct URL, search result, API, relationship, or another GLPI page. GLPI profile rights remain the authorization boundary.
+> **Visibility is not authorization.** Hidden pages can remain reachable by direct URL, API, search, or relationships when the user has native rights. GLPI profile permissions remain the authorization boundary.
 
 ## Compatibility
 
 - GLPI 11.0.x
-- PHP 8.2, 8.3, or 8.4
-- GPL-3.0-or-later
+- PHP 8.2, 8.3, and 8.4
+- Plugin folder/key `uimanager`; namespace `GlpiPlugin\Uimanager`
 
-## Supported entries
+## Supported navigation
 
-Assets Dashboard, Computers, Monitors, Software, Network Devices, Peripherals, Printers, Cartridges, Consumables, Phones, Racks, Enclosures, PDUs, Passive Devices, Unmanaged Assets, Cables, SIM Cards, and Global.
+- **Assets:** dashboard, Computers, Monitors, Software, Network Devices, Peripherals, Printers, Cartridges, Consumables, Phones, Racks, Enclosures, PDUs, Passive Devices, Unmanaged Assets, Cables, SIM Cards, Global.
+- **Assistance:** dashboard, Tickets, Problems, Changes, Planning, Statistics, Recurring Tickets, Recurring Changes. Service Catalog and unregistered forms are preserved.
+- **Management:** Licenses, Documents, Phone Lines, Certificates, Datacenters, Clusters, Appliances, Databases, Suppliers, Contacts, Contracts, Budgets, and the native GLPI 11 Domains entry.
+- **Tools:** Projects, Knowledge Base, Reservations, Reports, Saved Searches, RSS Feeds, plus native GLPI 11 Reminders and Impact Analysis.
+- **Administration:** Users, Groups, Entities, Rules, Dictionaries, Profiles, Notification Queue, Logs, Inventory, Forms.
+- **Setup:** Asset Definitions, Dropdowns, Components, Notifications, Webhooks, Service Levels, General, Fields Uniqueness, Automatic Actions, Authentication, OAuth Clients, Receivers, External Links, Plugins.
 
-The registry targets only these native identifiers. It never matches translated labels, broad class patterns, or every child of Assets. Asset types created through GLPI 11 Asset Definitions and third-party plugin entries are therefore preserved.
+Each section has an independent top-level switch. Turning it off hides the whole sector but preserves child choices for re-enable. When the section is on, only explicitly hidden supported children are removed. Unknown, custom, and third-party children remain untouched. A sector is removed when it has no dashboard or remaining child; an explicit top-level hide removes it regardless of unknown children.
 
-## Installation
+## Install and configure
 
-1. Download `uimanager-1.0.0.zip`.
-2. Extract it into GLPI's plugins directory so the plugin is at `plugins/uimanager/`.
-3. In GLPI, open **Setup → Plugins**.
-4. Install and enable **GLPI UI Manager**.
+1. Extract `uimanager-1.1.0.zip` into GLPI's plugins directory, producing `plugins/uimanager/setup.php`.
+2. Install and enable **GLPI UI Manager** under **Setup → Plugins**.
+3. Open its configuration action, or browse directly to `/plugins/uimanager/front/config.php`.
 
-All settings default to visible. Installation creates an empty plugin-owned configuration table and does not change the menu until an administrator saves an override.
+The direct configuration path remains usable by an authorized administrator even when Setup or Plugins is hidden. The page requires the GLPI `config` update right. All top-level and child settings default visible.
 
-## Configuration
+Section actions affect only their section. **Reset All to Defaults** deletes plugin overrides and returns every registered setting to visible. Menu cache is cleared immediately after a change.
 
-Open **Setup → Plugins**, locate GLPI UI Manager, and select its configuration action. The page requires GLPI's configuration update right.
+## Upgrade from 1.0.0
 
-- **Save** stores the displayed checkbox states.
-- **Show All** makes every supported native entry visible.
-- **Hide All Native Assets** hides every supported native entry without affecting custom Asset Definitions or plugin-created entries.
-- **Reset Defaults** removes saved overrides and returns to the all-visible defaults.
+Back up GLPI normally, replace `plugins/uimanager/` with the 1.1.0 release, then run GLPI's plugin upgrade. The existing arbitrary-key table is reused. Its idempotent installer does not overwrite rows: all saved 1.0.0 Assets choices survive, while every new section and item defaults visible. No uninstall/reinstall is required.
 
-The plugin clears GLPI's session menu cache after a change and redirects back with a status message. The updated menu appears on refresh; no web-server restart is needed.
+## Diagnostics
 
-## Behavior and safety
+Authorized administrators can select **Download Menu Diagnostic** on the configuration page. Visit the normal GLPI menu once first so the hook captures the current tree. The JSON contains sector keys, submenu/option keys, class/itemtype identifiers where present, and labels as supplemental context. It intentionally excludes URLs, CSRF/session values, and arbitrary data. Use it to confirm deployment-specific aliases on GLPI 11.0.8.
 
-- Menu filtering uses GLPI's supported `redefine_menus` hook, never CSS or JavaScript.
-- Unknown submitted configuration keys are rejected; missing GLPI menu keys are ignored safely.
-- Only the `assets` sector and explicitly registered native keys are considered.
-- The top-level Assets menu remains while a native, custom, or plugin-created child—or the dashboard—remains visible.
-- Assets is removed only when no visible child or dashboard remains, so an empty menu is never rendered.
-- Disabling the plugin immediately restores GLPI's normal menus because the hook no longer runs.
-- Uninstalling removes only `glpi_plugin_uimanager_configs`; it does not alter assets, GLPI data, or native profile rights.
+## Safety and lifecycle
 
-## Architecture
+- No CSS/JavaScript menu hiding and no GLPI core modifications.
+- Unknown/plugin children and custom Asset Definitions (for example Projectors) are preserved unless their entire sector is explicitly disabled.
+- Hiding Licenses does not affect Assets Software; hiding Documents does not affect attachments; hiding Suppliers affects navigation only.
+- Disabling the plugin stops the hook and restores normal menus immediately.
+- Uninstall drops only `glpi_plugin_uimanager_configs`; it changes no native data or profile rights.
 
-Runtime code uses the `GlpiPlugin\Uimanager` namespace. `SupportedMenuRegistry` owns the narrow list of supported native identifiers, `MenuFilter` is a pure and unit-tested menu transformation, `Config` owns persistence, and the configuration controller and renderer isolate POST handling from presentation. This separation is intended to support additional sectors and future UI operations without replacing the 1.0 filtering core.
+## Technical keys and verification
 
-## Live-verification assumptions
+The registry follows GLPI's official `11.0/bugfixes` menu generation: sector keys `assets`, `helpdesk`, `management`, `tools`, `admin`, `config`; child keys are listed in `SupportedMenuRegistry`. Namespaced GLPI 11 keys have compatibility aliases for Asset Definitions, Inventory, and Forms; Dictionaries also accepts GLPI's internal `dictionnary` spelling.
 
-The registry follows GLPI 11's generated menu structure. The sector is `assets`; native entries use lowercased class names such as `computer`, `networkequipment`, `cartridgeitem`, and `passivedcequipment`; Global is generated as `allassets`; the Assets dashboard is stored separately as `default_dashboard`; and SIM Cards is expected from the configured device class `Item_DeviceSimcard` as `item_devicesimcard`.
-
-The hook contract and native type list were checked against the official GLPI `11.0/bugfixes` source. Live QA should still confirm these deployment-dependent cases:
-
-- SIM Cards appears only when its class is included in GLPI's **Devices displayed in menu** setting.
-- Assets Dashboard appears only when the active profile has dashboard read permission and an Assets dashboard is configured.
-- A distribution-specific patch has not renamed a native class. Missing keys are ignored safely if it has.
-
-## Upgrade
-
-Back up GLPI according to normal operational practice, replace the contents of `plugins/uimanager/` with the new release, and run GLPI's normal plugin upgrade action. The schema installer is idempotent and preserves saved visibility settings.
-
-## Uninstall
-
-Disable and uninstall the plugin from GLPI, then remove `plugins/uimanager/` if desired. Uninstall drops only the plugin configuration table. Native menus return normally and no GLPI asset data or profile rights are changed.
+Live 11.0.8 QA should confirm dashboard availability, optional SIM Card/device visibility, namespaced `glpi\asset\assetdefinition`, `glpi\inventory\inventory`, and `glpi\form\form`, plus any distribution patch. Missing keys are ignored safely and the diagnostic is designed to identify additional aliases.
 
 ## Roadmap
 
-The long-term UI-management foundation is intended to grow toward arbitrary menu visibility, profile-aware rules, menu renaming and ordering, custom icons, organization branding, dashboard layouts, default landing pages, and broader navigation simplification.
+Future work may include profile- or entity-specific visibility, ordering, renaming, dashboards, landing pages, ticket-screen customization, branding, and Quick Actions integration. These are not implemented in 1.1.0.
 
 ## Development
 
-```bash
-composer install
+```text
 composer validate --strict
-composer test
 composer lint
-powershell -File scripts/build-release.ps1
-php scripts/validate-release.php release/uimanager-1.0.0.zip
+composer test
+powershell -File scripts/build-release.ps1 -Version 1.1.0
+php scripts/validate-release.php release/uimanager-1.1.0.zip
 ```
 
-See [MANUAL_QA.md](MANUAL_QA.md) for live GLPI checks.
-
-## License
-
-Copyright (C) 2026 Clint Swartzlander and contributors. Distributed under the GNU General Public License v3.0 or later. See [LICENSE](LICENSE).
+See `MANUAL_QA.md` for deployment checks. Licensed GPL-3.0-or-later.
