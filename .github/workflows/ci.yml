@@ -40,10 +40,10 @@ jobs:
           extensions: zip
       - name: Build archive
         run: |
-          mkdir -p release/assetmenumanager
+          mkdir -p release/uimanager
           while IFS= read -r entry; do
-            cp -R "$entry" release/assetmenumanager/
+            cp -R "$entry" release/uimanager/
           done < scripts/package-files.txt
           cd release
-          zip -qr assetmenumanager-1.0.0.zip assetmenumanager
-      - run: php scripts/validate-release.php release/assetmenumanager-1.0.0.zip
+          zip -qr uimanager-1.0.0.zip uimanager
+      - run: php scripts/validate-release.php release/uimanager-1.0.0.zip

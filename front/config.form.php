@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use GlpiPlugin\Assetmenumanager\ConfigController;
+use GlpiPlugin\Uimanager\ConfigurationController;
 
 include '../../../inc/includes.php';
 require_once dirname(__DIR__) . '/inc/autoload.php';
 
-ConfigController::authorize();
+ConfigurationController::authorize();
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     http_response_code(405);
@@ -16,9 +16,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
 }
 
 try {
-    ConfigController::process($_POST);
+    ConfigurationController::process($_POST);
     Session::addMessageAfterRedirect(
-        __('Asset menu visibility settings saved.', 'assetmenumanager'),
+        __('UI visibility settings saved.', 'uimanager'),
         true,
         INFO
     );
@@ -26,4 +26,4 @@ try {
     Session::addMessageAfterRedirect($exception->getMessage(), true, ERROR);
 }
 
-Html::redirect($CFG_GLPI['root_doc'] . '/plugins/assetmenumanager/front/config.php');
+Html::redirect($CFG_GLPI['root_doc'] . '/plugins/uimanager/front/config.php');

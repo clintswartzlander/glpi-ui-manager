@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace GlpiPlugin\Assetmenumanager;
+namespace GlpiPlugin\Uimanager;
 
 use InvalidArgumentException;
 
-final class ConfigController
+final class ConfigurationController
 {
     public static function authorize(): void
     {
@@ -28,21 +28,27 @@ final class ConfigController
                 Config::save(InputValidator::visibilityFromSubmittedKeys($post['visible_items'] ?? []));
                 break;
 
-            case 'show_all':
             case 'reset_defaults':
-                if ($action === 'reset_defaults') {
-                    Config::reset();
-                } else {
-                    Config::save(SupportedAssetRegistry::defaults());
-                }
+                Config::reset();
                 break;
 
+            case 'show_all':
             case 'hide_all':
-                Config::save(array_fill_keys(SupportedAssetRegistry::keys(), false));
+                Config::save(self::visibilityForPreset($action));
                 break;
 
             default:
                 throw new InvalidArgumentException('The requested configuration action is not supported.');
         }
+    }
+
+    /** @return array<string, bool> */
+    public static function visibilityForPreset(string $action): array
+    {
+        return match ($action) {
+            'show_all' => SupportedMenuRegistry::defaults(),
+            'hide_all' => array_fill_keys(SupportedMenuRegistry::keys(), false),
+            default => throw new InvalidArgumentException('The requested visibility preset is not supported.'),
+        };
     }
 }

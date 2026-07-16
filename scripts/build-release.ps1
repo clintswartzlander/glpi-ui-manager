@@ -5,8 +5,8 @@ param(
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $release = Join-Path $root 'release'
-$packageRoot = Join-Path $release 'assetmenumanager'
-$zip = Join-Path $release "assetmenumanager-$Version.zip"
+$packageRoot = Join-Path $release 'uimanager'
+$zip = Join-Path $release "uimanager-$Version.zip"
 
 if (Test-Path -LiteralPath $packageRoot) {
     Remove-Item -LiteralPath $packageRoot -Recurse -Force

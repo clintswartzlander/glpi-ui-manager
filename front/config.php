@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-use GlpiPlugin\Assetmenumanager\Config;
-use GlpiPlugin\Assetmenumanager\ConfigController;
-use GlpiPlugin\Assetmenumanager\ConfigPageRenderer;
+use GlpiPlugin\Uimanager\Config;
+use GlpiPlugin\Uimanager\ConfigurationController;
+use GlpiPlugin\Uimanager\ConfigurationPageRenderer;
 
 include '../../../inc/includes.php';
 require_once dirname(__DIR__) . '/inc/autoload.php';
 
-ConfigController::authorize();
+ConfigurationController::authorize();
 
 Html::header(
-    __('GLPI Asset Menu Manager', 'assetmenumanager'),
+    __('GLPI UI Manager', 'uimanager'),
     $_SERVER['PHP_SELF'],
     'config',
     'plugin'
 );
 
-ConfigPageRenderer::render(Config::getVisibility());
+ConfigurationPageRenderer::render(Config::getVisibility());
 
 Html::footer();

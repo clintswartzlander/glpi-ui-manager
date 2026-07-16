@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace GlpiPlugin\Assetmenumanager\Tests;
+namespace GlpiPlugin\Uimanager\Tests;
 
-use GlpiPlugin\Assetmenumanager\MenuFilter;
-use GlpiPlugin\Assetmenumanager\SupportedAssetRegistry;
+use GlpiPlugin\Uimanager\MenuFilter;
+use GlpiPlugin\Uimanager\SupportedMenuRegistry;
 use PHPUnit\Framework\TestCase;
 
 final class MenuFilterTest extends TestCase
@@ -21,12 +21,12 @@ final class MenuFilterTest extends TestCase
     {
         $menus = $this->menus();
 
-        self::assertSame($menus, $this->filter->filter($menus, SupportedAssetRegistry::defaults()));
+        self::assertSame($menus, $this->filter->filter($menus, SupportedMenuRegistry::defaults()));
     }
 
     public function testOneConfiguredEntryIsRemoved(): void
     {
-        $visibility = SupportedAssetRegistry::defaults();
+        $visibility = SupportedMenuRegistry::defaults();
         $visibility['phone'] = false;
 
         $result = $this->filter->filter($this->menus(), $visibility);
@@ -37,7 +37,7 @@ final class MenuFilterTest extends TestCase
 
     public function testMultipleConfiguredEntriesAreRemoved(): void
     {
-        $visibility = SupportedAssetRegistry::defaults();
+        $visibility = SupportedMenuRegistry::defaults();
         foreach (['cartridgeitem', 'consumableitem', 'item_devicesimcard', 'pdu', 'passivedcequipment'] as $key) {
             $visibility[$key] = false;
         }
@@ -53,7 +53,7 @@ final class MenuFilterTest extends TestCase
     public function testUnrelatedMenuSectionsRemainUnchanged(): void
     {
         $menus = $this->menus();
-        $visibility = SupportedAssetRegistry::defaults();
+        $visibility = SupportedMenuRegistry::defaults();
         $visibility['phone'] = false;
 
         $result = $this->filter->filter($menus, $visibility);
@@ -64,7 +64,7 @@ final class MenuFilterTest extends TestCase
 
     public function testCustomAssetMenuEntriesRemain(): void
     {
-        $visibility = array_fill_keys(SupportedAssetRegistry::keys(), false);
+        $visibility = array_fill_keys(SupportedMenuRegistry::keys(), false);
 
         $result = $this->filter->filter($this->menus(), $visibility);
 
@@ -76,16 +76,25 @@ final class MenuFilterTest extends TestCase
     {
         $menus = $this->menus();
         unset($menus['assets']['content']['rack'], $menus['assets']['content']['item_devicesimcard']);
-        $visibility = SupportedAssetRegistry::defaults();
+        $visibility = SupportedMenuRegistry::defaults();
         $visibility['rack'] = false;
         $visibility['item_devicesimcard'] = false;
 
         self::assertIsArray($this->filter->filter($menus, $visibility));
     }
 
+    public function testUnknownVisibilityKeysAreIgnoredSafely(): void
+    {
+        $menus = $this->menus();
+        $visibility = SupportedMenuRegistry::defaults();
+        $visibility['third_party_asset'] = false;
+
+        self::assertSame($menus, $this->filter->filter($menus, $visibility));
+    }
+
     public function testAssetsRemainsWhenAnyNativeChildRemains(): void
     {
-        $visibility = array_fill_keys(SupportedAssetRegistry::keys(), false);
+        $visibility = array_fill_keys(SupportedMenuRegistry::keys(), false);
         $visibility['computer'] = true;
         $menus = $this->menus();
         unset($menus['assets']['content']['glpiassetprojector']);
@@ -98,7 +107,7 @@ final class MenuFilterTest extends TestCase
 
     public function testAssetsIsRemovedOnlyWhenNoVisibleChildOrDashboardRemains(): void
     {
-        $visibility = array_fill_keys(SupportedAssetRegistry::keys(), false);
+        $visibility = array_fill_keys(SupportedMenuRegistry::keys(), false);
         $menus = $this->menus();
         unset($menus['assets']['content']['glpiassetprojector']);
 
@@ -110,8 +119,8 @@ final class MenuFilterTest extends TestCase
 
     public function testDashboardKeepsAssetsMenuWhenItIsTheOnlyVisibleEntry(): void
     {
-        $visibility = array_fill_keys(SupportedAssetRegistry::keys(), false);
-        $visibility[SupportedAssetRegistry::DASHBOARD] = true;
+        $visibility = array_fill_keys(SupportedMenuRegistry::keys(), false);
+        $visibility[SupportedMenuRegistry::DASHBOARD] = true;
         $menus = $this->menus();
         unset($menus['assets']['content']['glpiassetprojector']);
 
@@ -124,13 +133,13 @@ final class MenuFilterTest extends TestCase
     public function testFilteringDoesNotMutateInputAndDefaultBehaviorCanBeRestored(): void
     {
         $menus = $this->menus();
-        $visibility = SupportedAssetRegistry::defaults();
+        $visibility = SupportedMenuRegistry::defaults();
         $visibility['computer'] = false;
 
         $this->filter->filter($menus, $visibility);
 
         self::assertArrayHasKey('computer', $menus['assets']['content']);
-        self::assertSame($menus, $this->filter->filter($menus, SupportedAssetRegistry::defaults()));
+        self::assertSame($menus, $this->filter->filter($menus, SupportedMenuRegistry::defaults()));
     }
 
     /** @return array<string, mixed> */

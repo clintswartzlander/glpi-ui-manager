@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GlpiPlugin\Assetmenumanager;
+namespace GlpiPlugin\Uimanager;
 
 use InvalidArgumentException;
 
@@ -20,9 +20,9 @@ final class InputValidator
             throw new InvalidArgumentException('The visible_items field must be an array.');
         }
 
-        $visibility = array_fill_keys(SupportedAssetRegistry::keys(), false);
+        $visibility = array_fill_keys(SupportedMenuRegistry::keys(), false);
         foreach (array_keys($submittedKeys) as $key) {
-            if (!is_string($key) || !SupportedAssetRegistry::isSupported($key)) {
+            if (!is_string($key) || !SupportedMenuRegistry::isSupported($key)) {
                 throw new InvalidArgumentException('An unsupported asset menu key was submitted.');
             }
             $visibility[$key] = true;

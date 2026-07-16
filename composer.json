@@ -1,6 +1,6 @@
 {
-    "name": "clintswartzlander/glpi-asset-menu-manager",
-    "description": "Globally show or hide supported native GLPI Assets menu entries.",
+    "name": "clintswartzlander/glpi-ui-manager",
+    "description": "Administrator-controlled GLPI UI customization, beginning with native Assets menu visibility.",
     "type": "glpi-plugin",
     "license": "GPL-3.0-or-later",
     "require": {
@@ -11,12 +11,12 @@
     },
     "autoload": {
         "psr-4": {
-            "GlpiPlugin\\Assetmenumanager\\": "src/"
+            "GlpiPlugin\\Uimanager\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "GlpiPlugin\\Assetmenumanager\\Tests\\": "tests/"
+            "GlpiPlugin\\Uimanager\\Tests\\": "tests/"
         }
     },
     "scripts": {

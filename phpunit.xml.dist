@@ -5,7 +5,7 @@
          colors="true"
          cacheDirectory=".phpunit.cache">
     <testsuites>
-        <testsuite name="Asset Menu Manager">
+        <testsuite name="GLPI UI Manager">
             <directory>tests</directory>
         </testsuite>
     </testsuites>

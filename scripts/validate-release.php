@@ -14,10 +14,10 @@ if ($zip->open($argv[1]) !== true) {
 }
 
 $required = [
-    'assetmenumanager/setup.php',
-    'assetmenumanager/hook.php',
-    'assetmenumanager/README.md',
-    'assetmenumanager/LICENSE',
+    'uimanager/setup.php',
+    'uimanager/hook.php',
+    'uimanager/README.md',
+    'uimanager/LICENSE',
 ];
 $seen = [];
 
@@ -27,7 +27,7 @@ for ($index = 0; $index < $zip->numFiles; $index++) {
         fwrite(STDERR, "Unsafe archive entry: {$name}\n");
         exit(1);
     }
-    if (!str_starts_with($name, 'assetmenumanager/')) {
+    if (!str_starts_with($name, 'uimanager/')) {
         fwrite(STDERR, "Unexpected top-level entry: {$name}\n");
         exit(1);
     }

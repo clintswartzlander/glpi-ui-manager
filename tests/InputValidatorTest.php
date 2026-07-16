@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace GlpiPlugin\Assetmenumanager\Tests;
+namespace GlpiPlugin\Uimanager\Tests;
 
-use GlpiPlugin\Assetmenumanager\InputValidator;
-use GlpiPlugin\Assetmenumanager\SupportedAssetRegistry;
+use GlpiPlugin\Uimanager\InputValidator;
+use GlpiPlugin\Uimanager\SupportedMenuRegistry;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
@@ -18,7 +18,7 @@ final class InputValidatorTest extends TestCase
             'phone' => '1',
         ]);
 
-        self::assertSame(SupportedAssetRegistry::keys(), array_keys($result));
+        self::assertSame(SupportedMenuRegistry::keys(), array_keys($result));
         self::assertTrue($result['computer']);
         self::assertTrue($result['phone']);
         self::assertFalse($result['printer']);

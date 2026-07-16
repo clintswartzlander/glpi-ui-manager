@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GlpiPlugin\Assetmenumanager;
+namespace GlpiPlugin\Uimanager;
 
 final class MenuFilter
 {
@@ -22,12 +22,12 @@ final class MenuFilter
             ? $assets['content']
             : [];
 
-        foreach (SupportedAssetRegistry::all() as $configKey => $item) {
+        foreach (SupportedMenuRegistry::all() as $configKey => $item) {
             if (($visibility[$configKey] ?? true) === true) {
                 continue;
             }
 
-            if ($configKey === SupportedAssetRegistry::DASHBOARD) {
+            if ($configKey === SupportedMenuRegistry::DASHBOARD) {
                 unset($assets['default_dashboard']);
                 continue;
             }

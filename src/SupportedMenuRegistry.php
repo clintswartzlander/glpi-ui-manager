@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace GlpiPlugin\Assetmenumanager;
+namespace GlpiPlugin\Uimanager;
 
-final class SupportedAssetRegistry
+final class SupportedMenuRegistry
 {
     public const DASHBOARD = 'assets_dashboard';
 

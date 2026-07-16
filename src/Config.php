@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace GlpiPlugin\Assetmenumanager;
+namespace GlpiPlugin\Uimanager;
 
 use RuntimeException;
 use Throwable;
 
 final class Config
 {
-    public const TABLE = 'glpi_plugin_assetmenumanager_configs';
+    public const TABLE = 'glpi_plugin_uimanager_configs';
 
     public static function install(): bool
     {
@@ -39,7 +39,7 @@ final class Config
     {
         global $DB;
 
-        $visibility = SupportedAssetRegistry::defaults();
+        $visibility = SupportedMenuRegistry::defaults();
 
         try {
             if (!$DB->tableExists(self::TABLE)) {
@@ -48,7 +48,7 @@ final class Config
 
             foreach ($DB->request(['FROM' => self::TABLE]) as $row) {
                 $key = (string) ($row['item_key'] ?? '');
-                if (SupportedAssetRegistry::isSupported($key)) {
+                if (SupportedMenuRegistry::isSupported($key)) {
                     $visibility[$key] = (bool) ($row['is_visible'] ?? true);
                 }
             }
@@ -83,7 +83,7 @@ final class Config
         } catch (Throwable $exception) {
             $DB->rollBack();
             throw new RuntimeException(
-                'Could not save the Asset Menu Manager configuration.',
+                'Could not save the GLPI UI Manager configuration.',
                 0,
                 $exception
             );
@@ -106,7 +106,7 @@ final class Config
     /** @param array<string, bool> $visibility */
     private static function assertCompleteVisibilityMap(array $visibility): void
     {
-        $expected = SupportedAssetRegistry::keys();
+        $expected = SupportedMenuRegistry::keys();
         $actual = array_keys($visibility);
         sort($expected);
         sort($actual);
@@ -130,7 +130,7 @@ final class Config
     private static function logDebug(string $message): void
     {
         if (class_exists('Toolbox')) {
-            \Toolbox::logDebug('[assetmenumanager] ' . $message);
+            \Toolbox::logDebug('[uimanager] ' . $message);
         }
     }
 }
