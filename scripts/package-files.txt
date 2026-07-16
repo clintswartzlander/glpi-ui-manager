@@ -1,0 +1,11 @@
+CHANGELOG.md
+LICENSE
+MANUAL_QA.md
+README.md
+composer.json
+composer.lock
+front
+hook.php
+inc
+setup.php
+src

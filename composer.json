@@ -1,0 +1,30 @@
+{
+    "name": "clintswartzlander/glpi-ui-manager",
+    "description": "Administrator-controlled GLPI UI customization, beginning with native Assets menu visibility.",
+    "type": "glpi-plugin",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "php": "^8.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5 || ^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "GlpiPlugin\\Uimanager\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "GlpiPlugin\\Uimanager\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "@php scripts/lint.php"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": false
+    }
+}

@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  php:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3', '8.4']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+          extensions: zip
+      - run: composer validate --strict
+      - run: composer install --no-interaction --prefer-dist
+      - run: composer lint
+      - run: composer test
+
+  release-archive:
+    name: Release archive structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          extensions: zip
+      - name: Build archive
+        run: |
+          mkdir -p release/uimanager
+          while IFS= read -r entry; do
+            cp -R "$entry" release/uimanager/
+          done < scripts/package-files.txt
+          cd release
+          zip -qr uimanager-1.0.0.zip uimanager
+      - run: php scripts/validate-release.php release/uimanager-1.0.0.zip
