@@ -1,15 +1,28 @@
 # Changelog
 
-All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
+All notable changes follow Keep a Changelog and Semantic Versioning.
 
-## [1.0.0] - 2026-07-16
+## [1.1.0] - 2026-07-16
 
 ### Added
 
-- GLPI UI Manager foundation with global visibility controls for 18 supported native GLPI Assets menu entries.
-- Safe `redefine_menus` filtering that preserves custom Asset Definitions and unrelated menus.
-- Administrator-only configuration page with Save, Show All, Hide All Native Assets, and Reset to Defaults actions.
-- Idempotent plugin-owned configuration storage and safe uninstall behavior.
-- Automated unit, controller-safety, syntax, Composer, and release-archive checks.
-- Installation, security-model, upgrade, uninstall, and manual QA documentation.
-- Extensible `GlpiPlugin\Uimanager` architecture and `uimanager` release identity.
+- Operational top-level and child visibility controls for Assets, Assistance, Management, Tools, Administration, and Setup.
+- Native GLPI 11 controls for Management Domains and Tools Reminders and Impact Analysis.
+- Accessible section cards with Show All, Hide All Supported Items, Reset Section, Save Changes, and Reset All actions.
+- Administrator-only sanitized menu diagnostic download containing sector, submenu, and class/type identifiers.
+- PHP 8.2/8.3/8.4 CI and stricter release archive/version validation.
+
+### Changed
+
+- Generalized the registry and filter while preserving all 18 version 1.0.0 Assets configuration keys.
+- Added independent top-level section settings; disabling a section preserves its child choices.
+- Expanded upgrade, filtering, security, diagnostic, and configuration tests.
+
+### Security
+
+- Configuration, reset, and diagnostic access require GLPI configuration-update rights.
+- POST keys are restricted to the registry; GLPI's automatic CSRF handling remains authoritative.
+
+## [1.0.0] - 2026-07-16
+
+- Initial GLPI 11 release with 18 native Assets navigation controls.

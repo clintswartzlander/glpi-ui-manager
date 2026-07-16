@@ -6,6 +6,7 @@
 .phpunit.result.cache
 .phpunit.cache/
 .composer-cache/
+.tmp-glpi-11-source/
 
 /build/
 /dist/

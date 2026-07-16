@@ -13,60 +13,67 @@ final class MenuFilter
      */
     public function filter(array $menus, array $visibility): array
     {
-        if (!isset($menus['assets']) || !is_array($menus['assets'])) {
-            return $menus;
-        }
-
-        $assets = $menus['assets'];
-        $content = isset($assets['content']) && is_array($assets['content'])
-            ? $assets['content']
-            : [];
-
-        foreach (SupportedMenuRegistry::all() as $configKey => $item) {
-            if (($visibility[$configKey] ?? true) === true) {
+        foreach (SupportedMenuRegistry::getSections() as $section) {
+            if (!isset($menus[$section->menuKey]) || !is_array($menus[$section->menuKey])) {
                 continue;
             }
 
-            if ($configKey === SupportedMenuRegistry::DASHBOARD) {
-                unset($assets['default_dashboard']);
+            if (($visibility[$section->configurationKey] ?? true) === false) {
+                unset($menus[$section->menuKey]);
                 continue;
             }
 
-            $menuKey = $item['menu_key'];
-            if ($menuKey !== null) {
-                unset($content[$menuKey]);
+            $sector = $menus[$section->menuKey];
+            $content = isset($sector['content']) && is_array($sector['content'])
+                ? $sector['content']
+                : [];
+
+            foreach (SupportedMenuRegistry::getItemsForSection($section->key) as $item) {
+                if (($visibility[$item->configurationKey] ?? true) === true) {
+                    continue;
+                }
+
+                if ($item->isDashboard()) {
+                    unset($sector['default_dashboard']);
+                    continue;
+                }
+
+                foreach (SupportedMenuRegistry::resolveMenuKeysForItem($item) as $menuKey) {
+                    unset($content[$menuKey]);
+                }
             }
-        }
 
-        $assets['content'] = $content;
-        $hasDashboard = isset($assets['default_dashboard'])
-            && is_string($assets['default_dashboard'])
-            && $assets['default_dashboard'] !== '';
+            $sector['content'] = $content;
+            $dashboard = isset($sector['default_dashboard'])
+                && is_string($sector['default_dashboard'])
+                && $sector['default_dashboard'] !== ''
+                    ? $sector['default_dashboard']
+                    : null;
 
-        if ($content === [] && !$hasDashboard) {
-            unset($menus['assets']);
-            return $menus;
-        }
-
-        $currentDefault = isset($assets['default']) && is_string($assets['default'])
-            ? $assets['default']
-            : null;
-        if (!$this->isVisibleDefault($currentDefault, $content, $hasDashboard ? $assets['default_dashboard'] : null)) {
-            $default = $hasDashboard ? $assets['default_dashboard'] : $this->findDefaultPage($content);
-            if ($default !== null) {
-                $assets['default'] = $default;
-            } else {
-                unset($assets['default']);
+            if ($content === [] && $dashboard === null) {
+                unset($menus[$section->menuKey]);
+                continue;
             }
+
+            $currentDefault = isset($sector['default']) && is_string($sector['default'])
+                ? $sector['default']
+                : null;
+            if (!$this->isVisibleDefault($currentDefault, $content, $dashboard)) {
+                $default = $dashboard ?? $this->findDefaultPage($content);
+                if ($default === null) {
+                    unset($sector['default']);
+                } else {
+                    $sector['default'] = $default;
+                }
+            }
+
+            $menus[$section->menuKey] = $sector;
         }
 
-        $menus['assets'] = $assets;
         return $menus;
     }
 
-    /**
-     * @param array<string, mixed> $content
-     */
+    /** @param array<string, mixed> $content */
     private function findDefaultPage(array $content): ?string
     {
         foreach ($content as $entry) {
@@ -74,7 +81,6 @@ final class MenuFilter
                 return $entry['page'];
             }
         }
-
         return null;
     }
 
@@ -87,13 +93,11 @@ final class MenuFilter
         if ($dashboard !== null && $default === $dashboard) {
             return true;
         }
-
         foreach ($content as $entry) {
             if (is_array($entry) && ($entry['page'] ?? null) === $default) {
                 return true;
             }
         }
-
         return false;
     }
 }

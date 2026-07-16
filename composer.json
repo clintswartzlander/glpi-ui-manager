@@ -1,6 +1,6 @@
 {
     "name": "clintswartzlander/glpi-ui-manager",
-    "description": "Administrator-controlled GLPI UI customization, beginning with native Assets menu visibility.",
+    "description": "Administrator-controlled visibility for supported native GLPI navigation entries.",
     "type": "glpi-plugin",
     "license": "GPL-3.0-or-later",
     "require": {

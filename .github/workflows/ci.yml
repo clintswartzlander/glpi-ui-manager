@@ -39,11 +39,5 @@ jobs:
           coverage: none
           extensions: zip
       - name: Build archive
-        run: |
-          mkdir -p release/uimanager
-          while IFS= read -r entry; do
-            cp -R "$entry" release/uimanager/
-          done < scripts/package-files.txt
-          cd release
-          zip -qr uimanager-1.0.0.zip uimanager
-      - run: php scripts/validate-release.php release/uimanager-1.0.0.zip
+        run: php scripts/build-release.php 1.1.0
+      - run: php scripts/validate-release.php release/uimanager-1.1.0.zip

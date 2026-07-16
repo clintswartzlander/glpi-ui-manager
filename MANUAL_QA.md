@@ -1,64 +1,45 @@
-# Manual QA checklist
+# GLPI UI Manager 1.1.0 manual QA
 
-Test on a representative GLPI 11.0.x installation with PHP 8.2 or later. Run checks with GLPI debug mode enabled and retain a profile with full configuration rights.
+Test on GLPI 11.0.8 with debug mode enabled, in light and dark themes, using an administrator and a profile without configuration-update rights.
 
-## A. Fresh installation
+## Upgrade and defaults
 
-- [ ] Install and enable the plugin.
-- [ ] Confirm all native asset types remain visible by default.
-- [ ] Confirm the configuration page shows the visibility-only warning.
+- [ ] Upgrade a working 1.0.0 installation without uninstalling.
+- [ ] Confirm previously hidden Assets remain hidden.
+- [ ] Confirm all new top-level sections and children default visible.
+- [ ] Repeat the upgrade action; confirm settings are unchanged.
 
-## B. Hide one type
+## Section filtering
 
-- [ ] Clear **Phones**, save, and reload.
-- [ ] Confirm Phones disappears.
-- [ ] Confirm other asset types remain.
+- [ ] Assets: exercise all original 18 controls; confirm a custom Projectors Asset Definition and plugin children remain.
+- [ ] Assistance: hide Problems, Changes, Statistics, Recurring Tickets, and Recurring Changes; confirm Tickets, Planning, Service Catalog/forms, and plugin entries remain.
+- [ ] Management: hide Licenses, Phone Lines, Certificates, Datacenters, Clusters, Appliances, and Databases; confirm Documents, Domains, and unrelated/plugin entries remain.
+- [ ] Tools: independently hide Projects, Knowledge Base, Reservations, Reports, Saved Searches, RSS Feeds, Reminders, and Impact Analysis.
+- [ ] Administration: hide selected native entries; confirm unknown/plugin entries and native permissions remain.
+- [ ] Setup: hide selected entries and Plugins; confirm `/plugins/uimanager/front/config.php` remains reachable to the administrator.
 
-## C. Hide several types
+## Top-level and reset behavior
 
-- [ ] Hide Cartridges, Consumables, SIM Cards, PDUs, and Passive Devices.
-- [ ] Confirm only those entries disappear.
+- [ ] Disable Management; confirm the whole sector disappears even with unknown children.
+- [ ] Re-enable Management; confirm its stored child settings return.
+- [ ] Repeat for another sector.
+- [ ] Confirm Hide All Supported Items changes only the selected section's children.
+- [ ] Confirm Reset Section affects only that section.
+- [ ] Confirm Reset All restores every top-level and child setting visible.
+- [ ] Confirm no empty or malformed top-level menus appear.
 
-## D. Custom assets
+## Security and lifecycle
 
-- [ ] Create or use a custom Asset Definition named Projectors.
-- [ ] Hide all supported native assets.
-- [ ] Confirm Projectors remains visible and the top-level Assets menu remains.
+- [ ] Confirm a user without `config` UPDATE cannot view, save, reset, or download diagnostics.
+- [ ] Confirm state changes reject GET and invalid submitted keys.
+- [ ] Confirm normal GLPI automatic CSRF rejection for missing/invalid tokens.
+- [ ] Hide an entry and confirm direct URL access remains possible when native rights allow it.
+- [ ] Disable the plugin and confirm all normal menus return immediately.
+- [ ] Uninstall and confirm only `glpi_plugin_uimanager_configs` is removed.
 
-## E. Restore
+## Diagnostics and stability
 
-- [ ] Show Phones again and save.
-- [ ] Confirm Phones returns.
-- [ ] Select **Reset to Defaults** and confirm all supported entries return.
-
-## F. Disable plugin
-
-- [ ] Disable the plugin.
-- [ ] Confirm GLPI's native Assets menu returns to its normal state.
-
-## G. Permissions
-
-- [ ] Sign in with a profile that lacks configuration update rights.
-- [ ] Confirm the plugin configuration action is unavailable.
-- [ ] Open the configuration URL directly and confirm GLPI's normal access-denied response.
-- [ ] Attempt a direct POST and confirm it is denied.
-
-## H. Direct access and authorization boundary
-
-- [ ] Hide a type for which the test user retains profile permission.
-- [ ] Confirm its normal menu link is absent.
-- [ ] Confirm its direct URL can still be reached.
-- [ ] Confirm documentation and UI clearly say hiding is not permission revocation.
-
-## I. Themes
-
-- [ ] Verify the configuration page in GLPI's light theme.
-- [ ] Verify the configuration page in GLPI's dark theme.
-
-## J. Logs and compatibility
-
-- [ ] Confirm there are no PHP warnings or errors in GLPI logs.
-- [ ] Confirm there are no browser-console errors.
-- [ ] Confirm the Assets menu contains no empty or malformed entries.
-- [ ] Repeat with one expected native entry unavailable to the active profile; confirm filtering fails safely.
-- [ ] Verify GLPI 11.0.x menu keys listed under **Live-verification assumptions** in the README/release report.
+- [ ] Download the diagnostic and confirm sector/submenu technical keys and class names are present.
+- [ ] Confirm it contains no URLs, CSRF tokens, session IDs, or personal data.
+- [ ] Verify the namespaced Asset Definition, Inventory, and Forms keys and note any missing GLPI 11.0.8 aliases.
+- [ ] Confirm no PHP warnings, browser-console errors, or theme contrast/layout issues.
