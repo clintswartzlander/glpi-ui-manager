@@ -78,6 +78,22 @@ final class BrandingAssets
         return is_file($path) ? $path : null;
     }
 
+    /** @return array{path: string, mime: string, size: int}|null */
+    public function delivery(string $name): ?array
+    {
+        $path = $this->path($name);
+        if ($path === null) {
+            return null;
+        }
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($path);
+        $size = filesize($path);
+        if (!is_string($mime) || !isset(self::MIME_EXTENSIONS[$mime]) || $size === false || $size <= 0) {
+            return null;
+        }
+
+        return ['path' => $path, 'mime' => $mime, 'size' => $size];
+    }
+
     private function directory(): string
     {
         $root = defined('GLPI_UPLOAD_DIR') ? GLPI_UPLOAD_DIR : sys_get_temp_dir();

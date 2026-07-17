@@ -123,9 +123,16 @@ final class BrandingFrameworkTest extends TestCase
         }
         $name = 'logo-injection-' . bin2hex(random_bytes(6)) . '.png';
         $path = $directory . '/' . $name;
-        file_put_contents($path, 'test-image');
+        file_put_contents($path, base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+            true
+        ));
         touch($path, 1700000000);
         try {
+            $delivery = (new \GlpiPlugin\Uimanager\Branding\BrandingAssets())->delivery($name);
+            self::assertNotNull($delivery);
+            self::assertSame('image/png', $delivery['mime']);
+            self::assertGreaterThan(0, $delivery['size']);
             $resolved = (new LogoInjection())->resolve([
                 'expanded_logo' => $name,
                 'collapsed_logo' => 'missing.png',
@@ -150,6 +157,69 @@ final class BrandingFrameworkTest extends TestCase
         self::assertSame(1, substr_count($endpoint, 'resolveWithSources('));
         self::assertStringNotContainsString('cssForEntity(', $endpoint);
         self::assertStringContainsString("LogoInjection())->resolve(\$resolved['values'])", $endpoint);
+    }
+
+    public function testGlpiElevenLogoRuntimeTargetsBackgroundSpanAndCollapseClass(): void
+    {
+        $root = dirname(__DIR__);
+        $script = (string) file_get_contents($root . '/public/js/branding.js');
+        $css = (string) file_get_contents($root . '/public/css/branding.css');
+
+        self::assertStringContainsString('[data-testid="sidebar"] .navbar-brand > .glpi-logo', $script);
+        self::assertStringContainsString("classList.contains('navbar-collapsed')", $script);
+        self::assertStringContainsString("'--uimanager-' + kind + '-logo-image'", $script);
+        self::assertStringContainsString('body.vertical-layout:not(.navbar-collapsed)', $css);
+        self::assertStringContainsString('body.vertical-layout.navbar-collapsed', $css);
+        self::assertStringContainsString('background-image: var(--uimanager-expanded-logo-image)', $css);
+        self::assertStringContainsString('background-image: var(--uimanager-collapsed-logo-image)', $css);
+        self::assertStringNotContainsString('setInterval', $script);
+    }
+
+    public function testLogoRuntimeDiagnosticsAreDebugOnlyAndProductionSilent(): void
+    {
+        $script = (string) file_get_contents(dirname(__DIR__) . '/public/js/branding.js');
+
+        self::assertStringContainsString("classList.contains('debug-active')", $script);
+        self::assertStringContainsString('UIManagerBrandingDiagnostics', $script);
+        self::assertStringNotContainsString('console.log', $script);
+        self::assertStringNotContainsString('console.debug', $script);
+    }
+
+    public function testAssetDeliveryRejectsUnsafeMissingAndNonImageFiles(): void
+    {
+        $assets = new \GlpiPlugin\Uimanager\Branding\BrandingAssets();
+        $directory = rtrim(sys_get_temp_dir(), '/\\') . '/uimanager/branding';
+        if (!is_dir($directory)) self::assertTrue(mkdir($directory, 0750, true));
+        $name = 'delivery-' . bin2hex(random_bytes(6)) . '.txt';
+        $path = $directory . '/' . $name;
+        file_put_contents($path, 'not an image');
+        try {
+            self::assertNull($assets->delivery('../' . $name));
+            self::assertNull($assets->delivery('missing.png'));
+            self::assertNull($assets->delivery($name));
+        } finally {
+            @unlink($path);
+        }
+    }
+
+    public function testAssetEndpointUsesAllowlistedDeliveryAndSecurityHeaders(): void
+    {
+        $endpoint = (string) file_get_contents(dirname(__DIR__) . '/front/branding.asset.php');
+
+        self::assertStringContainsString("basename(\$file) === \$file", $endpoint);
+        self::assertStringContainsString("->delivery(\$file)", $endpoint);
+        self::assertStringContainsString("header('X-Content-Type-Options: nosniff')", $endpoint);
+        self::assertStringContainsString("header('Content-Disposition: inline;", $endpoint);
+    }
+
+    public function testPreviewAndRuntimeShareLogoUrlResolver(): void
+    {
+        $root = dirname(__DIR__);
+        $preview = (string) file_get_contents($root . '/src/Branding/BrandingPageRenderer.php');
+        $runtime = (string) file_get_contents($root . '/front/branding.config.php');
+
+        self::assertStringContainsString('LogoInjection())->urlForAsset($resolved)', $preview);
+        self::assertStringContainsString('LogoInjection())->resolve($resolved', $runtime);
     }
 
     public function testBrandingStylesheetConsumesVariablesWithoutHardcodedColors(): void

@@ -28,11 +28,11 @@ final class LogoInjection
 
     public function urlForAsset(string $name): string
     {
-        $path = $this->assets->path($name);
-        if ($path === null) {
+        $delivery = $this->assets->delivery($name);
+        if ($delivery === null) {
             return '';
         }
-        $modified = filemtime($path);
+        $modified = filemtime($delivery['path']);
         if ($modified === false) {
             return '';
         }

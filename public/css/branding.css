@@ -67,3 +67,23 @@ html[data-uimanager-branding] .navbar-brand-text {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+html[data-uimanager-branding] body.vertical-layout:not(.navbar-collapsed)
+    [data-testid="sidebar"] .glpi-logo[data-uimanager-branding-logo-expanded="ready"] {
+    background-image: var(--uimanager-expanded-logo-image);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    max-height: 55px;
+    max-width: 100%;
+}
+
+html[data-uimanager-branding] body.vertical-layout.navbar-collapsed
+    [data-testid="sidebar"] .glpi-logo[data-uimanager-branding-logo-collapsed="ready"] {
+    background-image: var(--uimanager-collapsed-logo-image);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    max-height: 40px;
+    max-width: 40px;
+}

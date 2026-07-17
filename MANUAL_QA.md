@@ -59,6 +59,10 @@ Test on GLPI 11.0.8 with debug mode enabled, in light and dark themes, using an 
 
 ## Branding framework
 
+- [ ] With two unmistakably different logo images, inspect GLPI 11 vertical markup and confirm the managed target is `[data-testid="sidebar"] .navbar-brand > .glpi-logo` (a background-painted `span`, not an `img`).
+- [ ] Expand and collapse the sidebar without reloading; confirm `body.navbar-collapsed` selects the compact logo immediately and expanding restores the wide logo without duplicate elements or requests.
+- [ ] In GLPI debug mode, run `window.UIManagerBrandingDiagnostics.snapshot()` and confirm candidate count, `span` element type, original/replacement backgrounds, load results, attempt counts, and active state; confirm the object and observer are absent outside debug mode.
+- [ ] Verify direct expanded/collapsed asset requests return HTTP 200, an allowlisted image MIME type, non-zero content, `Content-Disposition: inline`, and `X-Content-Type-Options: nosniff`; traversal, missing, and non-image requests must return 404.
 - [ ] Upload distinct expanded and collapsed sidebar logos; refresh normally and confirm both variants change with successful HTTP 200 image requests containing a `v` cache key.
 - [ ] Change each logo again and confirm the new image appears without clearing browser cache.
 - [ ] Delete each override and confirm GLPI defaults remain with no broken-image placeholder or image 404.
