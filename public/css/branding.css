@@ -1,19 +1,61 @@
-/* Runtime values are emitted by branding.config.php and scoped to this marker. */
+/* Values are resolved once per authenticated request by ThemeInjection. */
 html[data-uimanager-branding] a {
-    --tblr-link-color: var(--ui-link);
+    color: var(--uimanager-link-color, var(--tblr-link-color, currentColor));
 }
 
 html[data-uimanager-branding] .btn-primary {
-    --tblr-btn-bg: var(--ui-button);
-    --tblr-btn-border-color: var(--ui-button);
+    --tblr-btn-bg: var(--uimanager-primary-color, var(--tblr-primary));
+    --tblr-btn-border-color: var(--uimanager-primary-color, var(--tblr-primary));
+    --tblr-btn-hover-bg: var(--uimanager-primary-color, var(--tblr-primary));
+    --tblr-btn-hover-border-color: var(--uimanager-primary-color, var(--tblr-primary));
+}
+
+html[data-uimanager-branding] .btn-secondary {
+    --tblr-btn-bg: var(--uimanager-secondary-color, var(--tblr-secondary));
+    --tblr-btn-border-color: var(--uimanager-secondary-color, var(--tblr-secondary));
+}
+
+html[data-uimanager-branding] .bg-primary,
+html[data-uimanager-branding] .page-item.active .page-link {
+    background-color: var(--uimanager-primary-color, var(--tblr-primary)) !important;
+    border-color: var(--uimanager-primary-color, var(--tblr-primary)) !important;
+}
+
+html[data-uimanager-branding] .text-primary,
+html[data-uimanager-branding] .nav-link.active {
+    color: var(--uimanager-primary-color, var(--tblr-primary)) !important;
+}
+
+html[data-uimanager-branding] .bg-secondary {
+    background-color: var(--uimanager-secondary-color, var(--tblr-secondary)) !important;
+}
+
+html[data-uimanager-branding] .text-secondary {
+    color: var(--uimanager-secondary-color, var(--tblr-secondary)) !important;
 }
 
 html[data-uimanager-branding] .navbar-vertical {
-    --tblr-navbar-bg: var(--ui-sidebar-bg);
-    color: var(--ui-sidebar-fg);
+    --tblr-navbar-bg: var(--uimanager-sidebar-background, var(--tblr-bg-surface));
+    color: var(--uimanager-sidebar-foreground, inherit);
 }
 
 html[data-uimanager-branding] .navbar-vertical .nav-link,
 html[data-uimanager-branding] .navbar-vertical .nav-link-icon {
-    color: var(--ui-sidebar-icon);
+    color: var(--uimanager-sidebar-icon-color, currentColor);
+}
+
+html[data-uimanager-branding] .text-danger {
+    color: var(--uimanager-danger-color, var(--tblr-danger)) !important;
+}
+
+html[data-uimanager-branding] .text-warning {
+    color: var(--uimanager-warning-color, var(--tblr-warning)) !important;
+}
+
+html[data-uimanager-branding] .text-success {
+    color: var(--uimanager-success-color, var(--tblr-success)) !important;
+}
+
+html[data-uimanager-branding] .text-info {
+    color: var(--uimanager-info-color, var(--tblr-info)) !important;
 }

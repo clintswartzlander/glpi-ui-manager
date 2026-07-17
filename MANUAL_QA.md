@@ -59,6 +59,10 @@ Test on GLPI 11.0.8 with debug mode enabled, in light and dark themes, using an 
 
 ## Branding framework
 
+- [ ] Set Primary to `#005A9C` and Secondary to `#00A3E0`; clear GLPI cache and confirm `:root` exposes the corresponding `--uimanager-primary-color` and `--uimanager-secondary-color` values.
+- [ ] Confirm primary buttons/active navigation and secondary buttons/utilities reflect the resolved colors, then save a second color pair and confirm the single `#uimanager-branding-runtime` block updates on refresh.
+- [ ] Confirm authenticated pages request `branding.config.php` once, contain no duplicate runtime style blocks, and report no PHP warnings, CSS errors, or JavaScript errors.
+- [ ] Confirm the login page does not request Branding CSS or JavaScript during this authenticated-theme-only sprint.
 - [ ] Open `/plugins/uimanager/front/config.php`; confirm it loads without Branding asset errors and existing menu visibility controls still work.
 - [ ] Open `/plugins/uimanager/front/branding.php`; confirm HTTP 200, a rendered configuration page, and no red GLPI error banner.
 - [ ] In Network, confirm `/plugins/uimanager/css/branding.css` returns HTTP 200 with `text/css` and `/plugins/uimanager/js/branding.js` returns HTTP 200 with a JavaScript content type; neither response may contain a GLPI HTML error page.
