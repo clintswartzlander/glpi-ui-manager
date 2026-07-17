@@ -43,3 +43,16 @@ Test on GLPI 11.0.8 with debug mode enabled, in light and dark themes, using an 
 - [ ] Confirm it contains no URLs, CSRF tokens, session IDs, or personal data.
 - [ ] Verify the namespaced Asset Definition, Inventory, and Forms keys and note any missing GLPI 11.0.8 aliases.
 - [ ] Confirm no PHP warnings, browser-console errors, or theme contrast/layout issues.
+
+## Recovery Test
+
+- [ ] Hide Plugins.
+- [ ] Save.
+- [ ] Confirm Plugins disappears.
+- [ ] Browse directly to:
+
+   /plugins/uimanager/front/config.php
+
+- [ ] Confirm configuration page loads.
+- [ ] Re-enable Plugins.
+- [ ] Confirm Plugins menu returns.
