@@ -4,23 +4,23 @@ GLPI UI Manager 1.1.0 gives administrators global visibility controls for suppor
 
 > **Visibility is not authorization.** Hidden pages can remain reachable by direct URL, API, search, or relationships when the user has native rights. GLPI profile permissions remain the authorization boundary.
 >
-> > [!WARNING]
-> ## Recovery if Plugins or Setup are hidden
->
-> GLPI UI Manager allows administrators to hide the **Plugins** and **Setup**
-> navigation entries.
->
-> If you hide those menus, the plugin configuration remains available directly at:
->
-> `/plugins/uimanager/front/config.php`
->
-> Example:
->
-> `https://your-glpi-server/plugins/uimanager/front/config.php`
->
-> Bookmark this URL before hiding either menu.
->
-> Hiding navigation entries does **not** lock administrators out of the plugin.
+
+## Recovery if Plugins or Setup are hidden
+
+GLPI UI Manager allows administrators to hide the **Plugins** and **Setup**
+navigation entries.
+
+If you hide those menus, the plugin configuration remains available directly at:
+
+`/plugins/uimanager/front/config.php`
+
+Example:
+
+https://your-glpi-server/plugins/uimanager/front/config.php`
+
+Bookmark this URL before hiding either menu.
+
+Hiding navigation entries does **not** lock administrators out of the plugin.
 
 ## Compatibility
 
