@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use GlpiPlugin\Uimanager\Config;
 
-define('PLUGIN_UIMANAGER_VERSION', '1.1.0');
+define('PLUGIN_UIMANAGER_VERSION', '1.2.0');
 define('PLUGIN_UIMANAGER_MIN_GLPI', '11.0.0');
 define('PLUGIN_UIMANAGER_MAX_GLPI', '11.0.99');
 
@@ -18,6 +18,11 @@ function plugin_init_uimanager(): void
     $PLUGIN_HOOKS['csrf_compliant']['uimanager'] = true;
     $PLUGIN_HOOKS['config_page']['uimanager'] = 'front/config.php';
     $PLUGIN_HOOKS['redefine_menus']['uimanager'] = 'plugin_uimanager_redefine_menus';
+    $PLUGIN_HOOKS['add_css']['uimanager'][] = 'front/branding.css.php';
+    $PLUGIN_HOOKS['add_javascript']['uimanager'][] = 'js/branding.js';
+    $PLUGIN_HOOKS['add_css_anonymous_page']['uimanager'][] = 'front/branding.css.php';
+    $PLUGIN_HOOKS['add_javascript_anonymous_page']['uimanager'][] = 'js/branding.js';
+    $PLUGIN_HOOKS['display_login']['uimanager'] = 'plugin_uimanager_branding_login';
 }
 
 function plugin_version_uimanager(): array
@@ -50,17 +55,17 @@ function plugin_uimanager_check_config(bool $verbose = false): bool
 
 function plugin_uimanager_install(): bool
 {
-    return Config::install();
+    return Config::install() && \GlpiPlugin\Uimanager\Branding\BrandingManager::install();
 }
 
 function plugin_uimanager_upgrade(string $oldVersion): bool
 {
     // The key/value schema already supports arbitrary registry keys. Re-running
     // install is an idempotent schema check and never writes visibility rows.
-    return Config::install();
+    return Config::install() && \GlpiPlugin\Uimanager\Branding\BrandingManager::install();
 }
 
 function plugin_uimanager_uninstall(): bool
 {
-    return Config::uninstall();
+    return \GlpiPlugin\Uimanager\Branding\BrandingManager::uninstall() && Config::uninstall();
 }

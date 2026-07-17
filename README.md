@@ -1,6 +1,6 @@
 # GLPI UI Manager
 
-GLPI UI Manager 1.1.0 gives administrators global visibility controls for supported native navigation entries in GLPI 11.0.x. It uses GLPI's `redefine_menus` hook and never changes core files, rights, or data.
+GLPI UI Manager 1.2.0 provides navigation controls and an entity-aware branding framework for GLPI 11.0.x. It uses supported plugin hooks and never changes core files, templates, vendor assets, rights, or native data.
 
 > **Visibility is not authorization.** Hidden pages can remain reachable by direct URL, API, search, or relationships when the user has native rights. GLPI profile permissions remain the authorization boundary.
 >
@@ -57,13 +57,19 @@ Back up GLPI normally, replace `plugins/uimanager/` with the 1.1.0 release, then
 
 Authorized administrators can select **Download Menu Diagnostic** on the configuration page. Visit the normal GLPI menu once first so the hook captures the current tree. The JSON contains sector keys, submenu/option keys, class/itemtype identifiers where present, and labels as supplemental context. It intentionally excludes URLs, CSRF/session values, and arbitrary data. Use it to confirm deployment-specific aliases on GLPI 11.0.8.
 
+## Branding
+
+Open `/plugins/uimanager/front/branding.php` or select **Branding** from the UI Manager configuration page. Global and per-entity settings support Default, Inherit Parent, and Override semantics. Phase 1 includes sidebar/login logos, favicon, login background, application name, semantic theme colors, and scoped custom CSS.
+
+Uploaded PNG, SVG, ICO, WEBP, and JPG files are validated and stored below GLPI's upload directory in `uimanager/branding`; they are never written into GLPI core or the plugin package. Effective values are resolved dynamically from the active entity through its parents to global defaults. CSS is generated per request as scoped variables and is not persisted.
+
 ## Safety and lifecycle
 
 - No CSS/JavaScript menu hiding and no GLPI core modifications.
 - Unknown/plugin children and custom Asset Definitions (for example Projectors) are preserved unless their entire sector is explicitly disabled.
 - Hiding Licenses does not affect Assets Software; hiding Documents does not affect attachments; hiding Suppliers affects navigation only.
 - Disabling the plugin stops the hook and restores normal menus immediately.
-- Uninstall drops only `glpi_plugin_uimanager_configs`; it changes no native data or profile rights.
+- Uninstall drops only `glpi_plugin_uimanager_configs` and `glpi_plugin_uimanager_branding`, and removes the plugin-owned branding upload directory; it changes no native data or profile rights.
 
 ## Technical keys and verification
 

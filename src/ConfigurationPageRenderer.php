@@ -13,6 +13,7 @@ final class ConfigurationPageRenderer
 
         $action = $CFG_GLPI['root_doc'] . '/plugins/uimanager/front/config.form.php';
         $diagnostic = $CFG_GLPI['root_doc'] . '/plugins/uimanager/front/menu-diagnostic.php';
+        $branding = $CFG_GLPI['root_doc'] . '/plugins/uimanager/front/branding.php';
 
         echo '<div class="container-xl py-3">';
         echo '<div class="card mb-3"><div class="card-header"><h2 class="card-title">'
@@ -22,7 +23,8 @@ final class ConfigurationPageRenderer
             . self::escape(__('Visibility is not authorization.', 'uimanager')) . '</strong> '
             . self::escape(__('Hiding navigation does not revoke permissions or prevent direct URL, API, search, or relationship access. GLPI profile rights remain the authorization boundary.', 'uimanager'))
             . '</div>';
-        echo '<p class="mb-0"><a class="btn btn-outline-secondary" href="' . self::escape($diagnostic) . '">'
+        echo '<p class="mb-0 d-flex gap-2"><a class="btn btn-primary" href="' . self::escape($branding) . '">'
+            . self::escape(__('Branding', 'uimanager')) . '</a><a class="btn btn-outline-secondary" href="' . self::escape($diagnostic) . '">'
             . self::escape(__('Download Menu Diagnostic', 'uimanager')) . '</a></p>';
         echo '</div></div>';
 

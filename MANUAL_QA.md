@@ -1,4 +1,4 @@
-# GLPI UI Manager 1.1.0 manual QA
+# GLPI UI Manager 1.2.0 manual QA
 
 Test on GLPI 11.0.8 with debug mode enabled, in light and dark themes, using an administrator and a profile without configuration-update rights.
 
@@ -56,3 +56,15 @@ Test on GLPI 11.0.8 with debug mode enabled, in light and dark themes, using an 
 - [ ] Confirm configuration page loads.
 - [ ] Re-enable Plugins.
 - [ ] Confirm Plugins menu returns.
+
+## Branding framework
+
+- [ ] Configure global colors and application name; confirm variables and title apply without a core/template change.
+- [ ] Upload each supported format (PNG, sanitized SVG, ICO, WEBP, JPG); confirm preview, replacement, deletion, and default restore.
+- [ ] Reject an unsupported type, a file over 5 MB, and an SVG containing script/event-handler content.
+- [ ] Set a parent override, child inheritance, and grandchild inheritance; confirm the parent value resolves.
+- [ ] Set a child override and confirm it wins; choose Default and confirm the framework default wins instead.
+- [ ] Confirm the expanded/collapsed sidebar logos, login logo/background, and favicon in authenticated and anonymous views.
+- [ ] Confirm theme colors in light/dark themes and check contrast manually.
+- [ ] Add custom CSS with multiple selectors; confirm it is scoped beneath `html[data-uimanager-branding]` and `@import` is removed.
+- [ ] Disable and uninstall the plugin; confirm native presentation returns and only plugin data/assets are removed.

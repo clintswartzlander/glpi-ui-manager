@@ -7,5 +7,7 @@ composer.lock
 front
 hook.php
 inc
+js
 setup.php
 src
+templates

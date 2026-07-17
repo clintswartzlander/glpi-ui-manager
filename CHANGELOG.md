@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 - 2026-07-17
+
+- Add the reusable entity-aware Branding service layer and Phase 1 configuration UI.
+- Add validated branding asset storage, previews, deletion, and dynamic delivery.
+- Add dynamically generated scoped CSS variables and authenticated/anonymous hook integration.
+- Add parent entity inheritance with Default, Inherit Parent, and Override modes.
+
 All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ## [1.1.0] - 2026-07-16
