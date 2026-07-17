@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace GlpiPlugin\Uimanager\Tests;
 
+use ArrayIterator;
 use GlpiPlugin\Uimanager\Branding\BrandingCssGenerator;
 use GlpiPlugin\Uimanager\Branding\BrandingManager;
 use GlpiPlugin\Uimanager\Branding\BrandingResolver;
 use PHPUnit\Framework\TestCase;
-use ArrayIterator;
 
 final class BrandingFrameworkTest extends TestCase
 {
@@ -72,6 +72,33 @@ final class BrandingFrameworkTest extends TestCase
         self::assertStringContainsString("= 'css/branding.css'", (string) $setup);
         self::assertStringContainsString("= 'js/branding.js'", (string) $setup);
         self::assertStringNotContainsString("front/branding.css", (string) $setup);
+    }
+
+    public function testEveryRegisteredBrowserAssetExistsOnlyBeneathPublic(): void
+    {
+        $root = dirname(__DIR__);
+        $setup = (string) file_get_contents($root . '/setup.php');
+        preg_match_all(
+            '~\\$PLUGIN_HOOKS\\[\'(?:add_css|add_javascript|add_css_anonymous_page|add_javascript_anonymous_page)\'\\]\\[\'uimanager\'\\]\\[\\]\\s*=\\s*\'([^\']+)\'~',
+            $setup,
+            $matches
+        );
+
+        self::assertNotEmpty($matches[1]);
+        foreach (array_unique($matches[1]) as $asset) {
+            self::assertFileExists($root . '/public/' . $asset);
+            self::assertFileDoesNotExist($root . '/' . $asset);
+        }
+    }
+
+    public function testAnonymousBrandingScriptIsPortableAndHasLoginBehavior(): void
+    {
+        $script = (string) file_get_contents(dirname(__DIR__) . '/public/js/branding.js');
+
+        self::assertStringContainsString('body.page-anonymous', $script);
+        self::assertStringContainsString('config.login_logo', $script);
+        self::assertStringNotContainsString('/plugins/', $script);
+        self::assertStringNotContainsString('/marketplace/', $script);
     }
 
     public function testManagerNormalizesOneDatabaseRowWithoutLeakingIterator(): void

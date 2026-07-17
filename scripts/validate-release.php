@@ -18,8 +18,8 @@ $required = [
     'uimanager/hook.php',
     'uimanager/README.md',
     'uimanager/LICENSE',
-    'uimanager/css/branding.css',
-    'uimanager/js/branding.js',
+    'uimanager/public/css/branding.css',
+    'uimanager/public/js/branding.js',
 ];
 $seen = [];
 $forbidden = ['vendor/', 'tests/', '.git/', '.github/', '.idea/', '.vscode/', 'release/'];
@@ -64,6 +64,19 @@ $setup = $zip->getFromName('uimanager/setup.php');
 if (!is_string($setup) || !str_contains($setup, "PLUGIN_UIMANAGER_VERSION', '" . $match[1] . "'")) {
     fwrite(STDERR, "Plugin version does not match archive filename.\n");
     exit(1);
+}
+
+preg_match_all(
+    '~\\$PLUGIN_HOOKS\\[\'(?:add_css|add_javascript|add_css_anonymous_page|add_javascript_anonymous_page)\'\\]\\[\'uimanager\'\\]\\[\\]\\s*=\\s*\'([^\']+)\'~',
+    $setup,
+    $assetMatches
+);
+foreach (array_unique($assetMatches[1]) as $asset) {
+    $publicAsset = 'uimanager/public/' . ltrim($asset, '/');
+    if (!isset($seen[$publicAsset])) {
+        fwrite(STDERR, "Registered browser asset is missing beneath public/: {$asset}\n");
+        exit(1);
+    }
 }
 
 $zip->close();

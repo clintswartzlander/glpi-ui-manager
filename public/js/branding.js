@@ -1,10 +1,10 @@
 (function () {
     'use strict';
     document.documentElement.setAttribute('data-uimanager-branding', '');
-    var script = Array.prototype.find.call(document.scripts, function (item) {
-        return /\/plugins\/uimanager\/js\/branding(?:\.min)?\.js(?:\?|$)/.test(item.src);
+    var script = document.currentScript || Array.prototype.find.call(document.scripts, function (item) {
+        return /\/js\/branding(?:\.min)?\.js(?:\?|$)/.test(item.src);
     });
-    if (!script) return;
+    if (!script || !script.src) return;
     var endpoint = new URL('../front/branding.config.php', script.src);
     fetch(endpoint, {credentials: 'same-origin', headers: {'Accept': 'application/json'}})
         .then(function (response) { return response.ok ? response.json() : {}; })
