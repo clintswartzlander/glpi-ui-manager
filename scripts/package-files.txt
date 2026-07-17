@@ -4,6 +4,7 @@ MANUAL_QA.md
 README.md
 composer.json
 composer.lock
+css
 front
 hook.php
 inc

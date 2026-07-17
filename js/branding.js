@@ -9,6 +9,15 @@
     fetch(endpoint, {credentials: 'same-origin', headers: {'Accept': 'application/json'}})
         .then(function (response) { return response.ok ? response.json() : {}; })
         .then(function (config) {
+            if (config.css) {
+                var style = document.getElementById('uimanager-branding-runtime');
+                if (!style) {
+                    style = document.createElement('style');
+                    style.id = 'uimanager-branding-runtime';
+                    document.head.appendChild(style);
+                }
+                style.textContent = config.css;
+            }
             var one = function (selector) { return document.querySelector(selector); };
             var setImage = function (selector, source) {
                 var image = source && one(selector); if (image) image.src = source;

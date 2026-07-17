@@ -8,6 +8,7 @@ use GlpiPlugin\Uimanager\Branding\BrandingCssGenerator;
 use GlpiPlugin\Uimanager\Branding\BrandingManager;
 use GlpiPlugin\Uimanager\Branding\BrandingResolver;
 use PHPUnit\Framework\TestCase;
+use ArrayIterator;
 
 final class BrandingFrameworkTest extends TestCase
 {
@@ -68,5 +69,50 @@ final class BrandingFrameworkTest extends TestCase
         self::assertStringContainsString("['add_javascript']['uimanager']", (string) $setup);
         self::assertStringContainsString("['add_css_anonymous_page']['uimanager']", (string) $setup);
         self::assertStringContainsString("['display_login']['uimanager']", (string) $setup);
+        self::assertStringContainsString("= 'css/branding.css'", (string) $setup);
+        self::assertStringContainsString("= 'js/branding.js'", (string) $setup);
+        self::assertStringNotContainsString("front/branding.css", (string) $setup);
+    }
+
+    public function testManagerNormalizesOneDatabaseRowWithoutLeakingIterator(): void
+    {
+        global $DB;
+        $previous = $DB ?? null;
+        $DB = new class {
+            public function tableExists(string $table): bool { return true; }
+            public function request(array $query): ArrayIterator
+            {
+                return new ArrayIterator([[
+                    'item_key' => 'primary_color', 'mode' => 'override',
+                    'value' => '#112233', 'is_enabled' => 1,
+                ]]);
+            }
+        };
+        try {
+            $resolved = (new BrandingManager())->resolve(0);
+            self::assertIsArray($resolved);
+            self::assertSame('#112233', $resolved['primary_color']);
+            self::assertNotInstanceOf(\Traversable::class, $resolved);
+        } finally {
+            $DB = $previous;
+        }
+    }
+
+    public function testManagerNormalizesNoDatabaseRowsToTypedDefaults(): void
+    {
+        global $DB;
+        $previous = $DB ?? null;
+        $DB = new class {
+            public function tableExists(string $table): bool { return true; }
+            public function request(array $query): ArrayIterator { return new ArrayIterator([]); }
+        };
+        try {
+            $resolved = (new BrandingManager())->resolve(0);
+            self::assertIsArray($resolved);
+            self::assertSame('#206bc4', $resolved['primary_color']);
+            self::assertNotInstanceOf(\Traversable::class, $resolved);
+        } finally {
+            $DB = $previous;
+        }
     }
 }

@@ -18,9 +18,9 @@ function plugin_init_uimanager(): void
     $PLUGIN_HOOKS['csrf_compliant']['uimanager'] = true;
     $PLUGIN_HOOKS['config_page']['uimanager'] = 'front/config.php';
     $PLUGIN_HOOKS['redefine_menus']['uimanager'] = 'plugin_uimanager_redefine_menus';
-    $PLUGIN_HOOKS['add_css']['uimanager'][] = 'front/branding.css.php';
+    $PLUGIN_HOOKS['add_css']['uimanager'][] = 'css/branding.css';
     $PLUGIN_HOOKS['add_javascript']['uimanager'][] = 'js/branding.js';
-    $PLUGIN_HOOKS['add_css_anonymous_page']['uimanager'][] = 'front/branding.css.php';
+    $PLUGIN_HOOKS['add_css_anonymous_page']['uimanager'][] = 'css/branding.css';
     $PLUGIN_HOOKS['add_javascript_anonymous_page']['uimanager'][] = 'js/branding.js';
     $PLUGIN_HOOKS['display_login']['uimanager'] = 'plugin_uimanager_branding_login';
 }

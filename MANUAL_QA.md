@@ -59,6 +59,11 @@ Test on GLPI 11.0.8 with debug mode enabled, in light and dark themes, using an 
 
 ## Branding framework
 
+- [ ] Open `/plugins/uimanager/front/config.php`; confirm it loads without Branding asset errors and existing menu visibility controls still work.
+- [ ] Open `/plugins/uimanager/front/branding.php`; confirm HTTP 200, a rendered configuration page, and no red GLPI error banner.
+- [ ] In Network, confirm `/plugins/uimanager/css/branding.css` returns HTTP 200 with `text/css` and `/plugins/uimanager/js/branding.js` returns HTTP 200 with a JavaScript content type; neither response may contain a GLPI HTML error page.
+- [ ] Confirm the browser console has no Branding MIME errors, 404s, or uncaught JavaScript errors.
+- [ ] Confirm GLPI logs have no new `BrandingManager` TypeError, SQL errors, or PHP warnings after loading both pages.
 - [ ] Configure global colors and application name; confirm variables and title apply without a core/template change.
 - [ ] Upload each supported format (PNG, sanitized SVG, ICO, WEBP, JPG); confirm preview, replacement, deletion, and default restore.
 - [ ] Reject an unsupported type, a file over 5 MB, and an SVG containing script/event-handler content.

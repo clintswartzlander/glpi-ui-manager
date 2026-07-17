@@ -145,14 +145,32 @@ final class BrandingManager
         }
     }
 
-    /** @return iterable<array<string, mixed>> */
-    private function rowsForEntity(int $entityId): iterable
+    /** @return list<array<string, mixed>> */
+    private function rowsForEntity(int $entityId): array
     {
         global $DB;
         if (!$DB->tableExists(self::TABLE)) {
             return [];
         }
-        return $DB->request(['FROM' => self::TABLE, 'WHERE' => ['entities_id' => $entityId]]);
+        return self::normalizeRows($DB->request([
+            'FROM' => self::TABLE,
+            'WHERE' => ['entities_id' => $entityId],
+        ]));
+    }
+
+    /**
+     * Normalize GLPI database iterators at the data-access boundary.
+     *
+     * @param iterable<array<string, mixed>> $rows
+     * @return list<array<string, mixed>>
+     */
+    private static function normalizeRows(iterable $rows): array
+    {
+        $normalized = [];
+        foreach ($rows as $row) {
+            $normalized[] = $row;
+        }
+        return $normalized;
     }
 
     private function validateValue(string $type, string $value): string

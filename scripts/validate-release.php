@@ -18,6 +18,8 @@ $required = [
     'uimanager/hook.php',
     'uimanager/README.md',
     'uimanager/LICENSE',
+    'uimanager/css/branding.css',
+    'uimanager/js/branding.js',
 ];
 $seen = [];
 $forbidden = ['vendor/', 'tests/', '.git/', '.github/', '.idea/', '.vscode/', 'release/'];
