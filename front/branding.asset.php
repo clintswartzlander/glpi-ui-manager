@@ -11,6 +11,6 @@ if ($file === '' || ($path = (new BrandingAssets())->path($file)) === null) { ht
 $mime = (new finfo(FILEINFO_MIME_TYPE))->file($path);
 header('Content-Type: ' . ($mime ?: 'application/octet-stream'));
 header('Content-Length: ' . filesize($path));
-header('Cache-Control: private, max-age=300');
+header('Cache-Control: private, max-age=31536000, immutable');
 header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'");
 readfile($path);

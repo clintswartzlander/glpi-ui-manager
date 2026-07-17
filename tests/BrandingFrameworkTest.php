@@ -7,6 +7,7 @@ namespace GlpiPlugin\Uimanager\Tests;
 use ArrayIterator;
 use GlpiPlugin\Uimanager\Branding\BrandingManager;
 use GlpiPlugin\Uimanager\Branding\BrandingResolver;
+use GlpiPlugin\Uimanager\Branding\LogoInjection;
 use GlpiPlugin\Uimanager\Branding\ThemeInjection;
 use PHPUnit\Framework\TestCase;
 
@@ -35,6 +36,9 @@ final class BrandingFrameworkTest extends TestCase
         self::assertSame(['color' => '#112233'], $resolver->resolve(2, [
             'color' => ['type' => 'color', 'default' => '#000000', 'section' => 'theme'],
         ], static fn (int $id): array => $rows[$id]));
+        self::assertSame(1, $resolver->resolveWithSources(2, [
+            'color' => ['type' => 'color', 'default' => '#000000', 'section' => 'theme'],
+        ], static fn (int $id): array => $rows[$id])['sources']['color']);
     }
 
     public function testDefaultModeStopsParentInheritance(): void
@@ -102,10 +106,50 @@ final class BrandingFrameworkTest extends TestCase
         $script = (string) file_get_contents(dirname(__DIR__) . '/public/js/branding.js');
 
         self::assertStringContainsString("getElementById('uimanager-branding-runtime')", $script);
+        self::assertStringContainsString('config.expanded_logo', $script);
+        self::assertStringContainsString('config.collapsed_logo', $script);
+        self::assertStringContainsString('image.onload', $script);
         self::assertStringNotContainsString('login_logo', $script);
         self::assertStringNotContainsString('favicon', $script);
         self::assertStringNotContainsString('/plugins/', $script);
         self::assertStringNotContainsString('/marketplace/', $script);
+    }
+
+    public function testLogoInjectionReturnsCacheBustedUrlsAndGracefulFallbacks(): void
+    {
+        $directory = rtrim(sys_get_temp_dir(), '/\\') . '/uimanager/branding';
+        if (!is_dir($directory)) {
+            self::assertTrue(mkdir($directory, 0750, true));
+        }
+        $name = 'logo-injection-' . bin2hex(random_bytes(6)) . '.png';
+        $path = $directory . '/' . $name;
+        file_put_contents($path, 'test-image');
+        touch($path, 1700000000);
+        try {
+            $resolved = (new LogoInjection())->resolve([
+                'expanded_logo' => $name,
+                'collapsed_logo' => 'missing.png',
+                'application_name' => '  Example Application  ',
+            ]);
+
+            self::assertSame(
+                'branding.asset.php?file=' . rawurlencode($name) . '&v=1700000000',
+                $resolved['expanded_logo']
+            );
+            self::assertSame('', $resolved['collapsed_logo']);
+            self::assertSame('Example Application', $resolved['application_name']);
+        } finally {
+            @unlink($path);
+        }
+    }
+
+    public function testRuntimeEndpointUsesOneSharedBrandingResolution(): void
+    {
+        $endpoint = (string) file_get_contents(dirname(__DIR__) . '/front/branding.config.php');
+
+        self::assertSame(1, substr_count($endpoint, 'resolveWithSources('));
+        self::assertStringNotContainsString('cssForEntity(', $endpoint);
+        self::assertStringContainsString("LogoInjection())->resolve(\$resolved['values'])", $endpoint);
     }
 
     public function testBrandingStylesheetConsumesVariablesWithoutHardcodedColors(): void

@@ -18,5 +18,34 @@
                 }
                 style.textContent = config.css;
             }
+            var logoUrl = function (value) {
+                return value ? new URL(value, endpoint).href : '';
+            };
+            var applyLogo = function (selector, value, name) {
+                var url = logoUrl(value);
+                if (!url) return;
+                var image = new Image();
+                image.onload = function () {
+                    document.querySelectorAll(selector).forEach(function (target) {
+                        target.src = url;
+                        if (name) target.alt = name;
+                    });
+                };
+                image.src = url;
+            };
+            var name = typeof config.application_name === 'string' ? config.application_name.trim() : '';
+            applyLogo('.navbar-brand-image:not(.navbar-brand-image-collapsed)', config.expanded_logo, name);
+            applyLogo('.navbar-brand-image-collapsed', config.collapsed_logo, name);
+            if (name) {
+                document.querySelectorAll('.navbar-brand').forEach(function (brand) {
+                    brand.title = name;
+                    brand.setAttribute('aria-label', name);
+                });
+                document.querySelectorAll('.navbar-brand-text').forEach(function (label) {
+                    label.textContent = name;
+                    label.title = name;
+                });
+                document.title = document.title.replace(/\bGLPI\b/g, function () { return name; });
+            }
         }).catch(function () {});
 }());

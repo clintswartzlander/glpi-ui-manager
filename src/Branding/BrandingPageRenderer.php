@@ -30,12 +30,14 @@ final class BrandingPageRenderer
     {
         global $CFG_GLPI;
         $configuration = $manager->getEntityConfiguration($entityId);
-        $resolved = $manager->resolve($entityId);
+        $resolution = $manager->resolveWithSources($entityId);
+        $resolved = $resolution['values'];
         $action = $CFG_GLPI['root_doc'] . '/plugins/uimanager/front/branding.form.php';
         echo '<div class="container-xl py-3"><div class="d-flex justify-content-between align-items-center mb-3"><div><h1>' . self::e(__('Branding', 'uimanager')) . '</h1>';
         echo '<p class="text-secondary mb-0">' . self::e(__('Upgrade-safe visual customization with entity inheritance.', 'uimanager')) . '</p></div>';
         echo '<a class="btn btn-outline-secondary" href="' . self::e($CFG_GLPI['root_doc'] . '/plugins/uimanager/front/config.php') . '">' . self::e(__('Navigation Manager', 'uimanager')) . '</a></div>';
         self::entitySelector($entityId);
+        self::runtimeDiagnostic($entityId, $resolved, $resolution['sources']);
         echo '<form method="post" enctype="multipart/form-data" action="' . self::e($action) . '">';
         echo '<input type="hidden" name="_glpi_csrf_token" value="' . self::e(\Session::getNewCSRFToken()) . '"><input type="hidden" name="entities_id" value="' . $entityId . '">';
         foreach (self::SECTIONS as $section => $meta) {
@@ -47,6 +49,40 @@ final class BrandingPageRenderer
             echo '</div><div class="mt-3"><button class="btn btn-primary" type="submit">' . self::e(__('Save', 'uimanager')) . '</button></div></div></section>';
         }
         echo '</form></div>';
+    }
+
+    /**
+     * @param array<string, string> $resolved
+     * @param array<string, int|null> $sources
+     */
+    private static function runtimeDiagnostic(int $entityId, array $resolved, array $sources): void
+    {
+        $logos = (new LogoInjection())->resolve($resolved);
+        $source = static function (?int $id): string {
+            if ($id === null) return __('GLPI default', 'uimanager');
+            return $id === 0 ? __('Global', 'uimanager') : sprintf(__('Entity %d', 'uimanager'), $id);
+        };
+        $status = ($logos['expanded_logo'] !== '' || $logos['collapsed_logo'] !== '')
+            ? __('Ready', 'uimanager')
+            : __('Using GLPI defaults', 'uimanager');
+        echo '<details class="card card-body mb-3"><summary class="fw-bold">' . self::e(__('Runtime logo diagnostics', 'uimanager')) . '</summary>';
+        echo '<dl class="row small mt-3 mb-0">';
+        $items = [
+            __('Resolved entity', 'uimanager') => (string) $entityId,
+            __('Expanded logo', 'uimanager') => $resolved['expanded_logo'] ?: __('GLPI default', 'uimanager'),
+            __('Expanded source', 'uimanager') => $source($sources['expanded_logo']),
+            __('Expanded URL', 'uimanager') => $logos['expanded_logo'] ?: __('Not emitted', 'uimanager'),
+            __('Collapsed logo', 'uimanager') => $resolved['collapsed_logo'] ?: __('GLPI default', 'uimanager'),
+            __('Collapsed source', 'uimanager') => $source($sources['collapsed_logo']),
+            __('Collapsed URL', 'uimanager') => $logos['collapsed_logo'] ?: __('Not emitted', 'uimanager'),
+            __('Application name', 'uimanager') => $logos['application_name'] ?: __('GLPI default', 'uimanager'),
+            __('Application name source', 'uimanager') => $source($sources['application_name']),
+            __('Runtime injection status', 'uimanager') => $status,
+        ];
+        foreach ($items as $label => $value) {
+            echo '<dt class="col-sm-4">' . self::e($label) . '</dt><dd class="col-sm-8 text-break">' . self::e($value) . '</dd>';
+        }
+        echo '</dl></details>';
     }
 
     /** @param array{mode: string, value: string, is_enabled: bool} $setting */
@@ -63,9 +99,10 @@ final class BrandingPageRenderer
         if ($type === 'asset') {
             echo '<input class="form-control" type="file" accept=".png,.svg,.ico,.webp,.jpg,.jpeg" name="branding[' . self::e($key) . '][file]">';
             if ($resolved !== '') {
-                global $CFG_GLPI;
-                $url = $CFG_GLPI['root_doc'] . '/plugins/uimanager/front/branding.asset.php?file=' . rawurlencode($resolved);
-                echo '<div class="mt-2 p-2 bg-light rounded"><img src="' . self::e($url) . '" alt="" style="max-height:80px;max-width:100%"></div>';
+                $url = (new LogoInjection())->urlForAsset($resolved);
+                if ($url !== '') {
+                    echo '<div class="mt-2 p-2 bg-light rounded"><img src="' . self::e($url) . '" alt="" style="max-height:80px;max-width:100%"></div>';
+                }
             }
             if ($setting['value'] !== '') echo '<label class="form-check mt-2"><input class="form-check-input" type="checkbox" name="branding[' . self::e($key) . '][delete]" value="1"><span class="form-check-label">' . self::e(__('Delete / restore default', 'uimanager')) . '</span></label>';
             echo '<div class="form-hint">PNG, SVG, ICO, WEBP, or JPG; maximum 5 MB.</div>';

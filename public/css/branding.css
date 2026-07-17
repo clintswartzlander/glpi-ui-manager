@@ -59,3 +59,11 @@ html[data-uimanager-branding] .text-success {
 html[data-uimanager-branding] .text-info {
     color: var(--uimanager-info-color, var(--tblr-info)) !important;
 }
+
+html[data-uimanager-branding] .navbar-brand-text {
+    display: block;
+    max-width: 14rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

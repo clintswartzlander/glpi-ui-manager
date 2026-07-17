@@ -59,6 +59,12 @@ Test on GLPI 11.0.8 with debug mode enabled, in light and dark themes, using an 
 
 ## Branding framework
 
+- [ ] Upload distinct expanded and collapsed sidebar logos; refresh normally and confirm both variants change with successful HTTP 200 image requests containing a `v` cache key.
+- [ ] Change each logo again and confirm the new image appears without clearing browser cache.
+- [ ] Delete each override and confirm GLPI defaults remain with no broken-image placeholder or image 404.
+- [ ] Set a long application name and confirm the visible brand text truncates without shifting navigation layout; verify the full value remains in title/accessible labels.
+- [ ] Test parent logo overrides with a child inheriting them; inspect Runtime logo diagnostics for entity, source, relative URL, and Ready status.
+- [ ] Confirm authenticated pages perform one branding configuration request, produce no logo-related PHP warnings or JavaScript errors, and do not affect the login page or favicon.
 - [ ] Set Primary to `#005A9C` and Secondary to `#00A3E0`; clear GLPI cache and confirm `:root` exposes the corresponding `--uimanager-primary-color` and `--uimanager-secondary-color` values.
 - [ ] Confirm primary buttons/active navigation and secondary buttons/utilities reflect the resolved colors, then save a second color pair and confirm the single `#uimanager-branding-runtime` block updates on refresh.
 - [ ] Confirm authenticated pages request `branding.config.php` once, contain no duplicate runtime style blocks, and report no PHP warnings, CSS errors, or JavaScript errors.

@@ -98,6 +98,16 @@ final class BrandingManager
         return $this->resolver->resolve($entityId, self::FIELDS, fn (int $id): array => $this->rowsForEntity($id));
     }
 
+    /** @return array{values: array<string, string>, sources: array<string, int|null>} */
+    public function resolveWithSources(int $entityId): array
+    {
+        return $this->resolver->resolveWithSources(
+            $entityId,
+            self::FIELDS,
+            fn (int $id): array => $this->rowsForEntity($id)
+        );
+    }
+
     /** @param array<string, mixed> $submitted @param array<string, mixed> $files */
     public function save(int $entityId, array $submitted, array $files): void
     {

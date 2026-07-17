@@ -13,6 +13,16 @@ class BrandingResolver
      */
     public function resolve(int $entityId, array $fields, callable $rowProvider): array
     {
+        return $this->resolveWithSources($entityId, $fields, $rowProvider)['values'];
+    }
+
+    /**
+     * @param array<string, array{type: string, default: string, section: string}> $fields
+     * @param callable(int): iterable<array<string, mixed>> $rowProvider
+     * @return array{values: array<string, string>, sources: array<string, int|null>}
+     */
+    public function resolveWithSources(int $entityId, array $fields, callable $rowProvider): array
+    {
         $chain = $this->entityChain($entityId);
         $rows = [];
         foreach ($chain as $id) {
@@ -21,8 +31,10 @@ class BrandingResolver
             }
         }
         $resolved = [];
+        $sources = [];
         foreach ($fields as $key => $definition) {
             $resolved[$key] = $definition['default'];
+            $sources[$key] = null;
             foreach ($chain as $id) {
                 $row = $rows[$id][$key] ?? null;
                 if ($row === null || !(bool) ($row['is_enabled'] ?? true)) {
@@ -31,15 +43,17 @@ class BrandingResolver
                 $mode = (string) ($row['mode'] ?? BrandingManager::MODE_INHERIT);
                 if ($mode === BrandingManager::MODE_DEFAULT) {
                     $resolved[$key] = $definition['default'];
+                    $sources[$key] = $id;
                     break;
                 }
                 if ($mode === BrandingManager::MODE_OVERRIDE) {
                     $resolved[$key] = (string) ($row['value'] ?? '');
+                    $sources[$key] = $id;
                     break;
                 }
             }
         }
-        return $resolved;
+        return ['values' => $resolved, 'sources' => $sources];
     }
 
     /** @return list<int> child-to-root, including global zero */
